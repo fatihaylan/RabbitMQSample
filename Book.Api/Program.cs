@@ -13,6 +13,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(opt => opt.UseInMemoryDatabase("BookDb"));
 
 builder.Services.AddSingleton<IRabbitMQService, RabbitMQService>();
+builder.Services.AddSingleton<IPublisher, Publisher>();
+builder.Services.AddSingleton<ISmtpConfiguration, SmtpConfiguration>();
+
 
 var app = builder.Build();
 

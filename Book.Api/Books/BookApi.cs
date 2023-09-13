@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using BookApi.Extensions;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using RabbitMQ.Keywords;
+using RabbitMQ.Services;
 
 namespace BookApi.Books;
 
@@ -23,7 +26,7 @@ internal static class BookApi
             };
         });
 
-        group.MapPost("/", async Task<Created<BookDto>> (AppDbContext db, CreateBookDto newBook) =>
+        group.MapPost("/", async Task<Created<BookDto>> (AppDbContext db, CreateBookDto newBook, IPublisher publisher, ISmtpConfiguration smtpConfiguration) =>
         {
             var book = new Book
             {
@@ -33,6 +36,8 @@ internal static class BookApi
             };
             db.Books.Add(book);
             await db.SaveChangesAsync();
+            
+            publisher.Publish(book.ToBookDto().GetNewBookMails(smtpConfiguration), CommonKeywords.ExchangeNames.BookExchange, CommonKeywords.QueueNames.NewBookNotifier);
 
             return TypedResults.Created($"/books/{book.Id}", book.ToBookDto());
         });
