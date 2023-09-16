@@ -13,8 +13,10 @@ public class MailSender : IMailSender
     {
         try
         {
+            if (string.IsNullOrWhiteSpace(mailModel.From))
+                mailModel.From = _smtpConfiguration.User;
+
             var mailMessage = mailModel.ToMailMessage();
-            mailMessage.From ??= new MailAddress(_smtpConfiguration.User);
 
             using var client = CreateSmtpClient(_smtpConfiguration);
             await client.SendMailAsync(mailMessage);

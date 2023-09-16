@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace RabbitMQ.Services;
 
-internal class ConsumerManager : IConsumerManager
+public class ConsumerManager : IConsumerManager
 {
     private readonly IRabbitMQService _rabbitService;
     private readonly IMailSender _mailSender;
@@ -40,12 +40,12 @@ internal class ConsumerManager : IConsumerManager
         {
             var mailModel = JsonSerializer.Deserialize<MailModel>(Encoding.UTF8.GetString(ea.Body.Span));
             Console.WriteLine($"Mail sending to {mailModel.To}...");
-            _mailSender.SendMailAsync(mailModel);
+            _mailSender.SendMailAsync(mailModel).Wait();
             Console.WriteLine($"Mail sent to {mailModel.To}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine("An error occurred while mail sending...");
+            Console.WriteLine("An error occurred while sending mail...");
             throw new Exception(ex.Message);
         }
     }
