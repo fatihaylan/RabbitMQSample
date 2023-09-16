@@ -7,21 +7,20 @@ namespace BookApi.Extensions;
 
 public static class MailModelExtensions
 {
-    public static IEnumerable<MailModel> GetNewBookMails(this BookDto book, ISmtpConfiguration smtpConfiguration)
+    public static IEnumerable<MailModel> GetNewBookMails(this BookDto book)
     {
         var mails = new List<MailModel>();
         string subject = $"New Book on our shelves!";
         string body = $"{book.Title} is now on our shelves!";
-        var toUsers = UserExtensions.GetUsers();
+        var userMails = UserExtensions.GetUsers().Select(x => x.Email);
 
-        foreach (var user in toUsers)
+        foreach (var userMail in userMails)
         {
             mails.Add(new MailModel()
             {
                 Subject = subject,
                 Body = body,
-                From = smtpConfiguration.User,
-                To = user.Email,
+                To = userMail,
             });
         }
         return mails;

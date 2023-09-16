@@ -26,7 +26,7 @@ internal static class BookApi
             };
         });
 
-        group.MapPost("/", async Task<Created<BookDto>> (AppDbContext db, CreateBookDto newBook, IPublisher publisher, ISmtpConfiguration smtpConfiguration) =>
+        group.MapPost("/", async Task<Created<BookDto>> (AppDbContext db, CreateBookDto newBook, IPublisher publisher) =>
         {
             var book = new Book
             {
@@ -37,7 +37,7 @@ internal static class BookApi
             db.Books.Add(book);
             await db.SaveChangesAsync();
             
-            publisher.Publish(book.ToBookDto().GetNewBookMails(smtpConfiguration), CommonKeywords.ExchangeNames.BookExchange, CommonKeywords.QueueNames.NewBookNotifier);
+            publisher.Publish(book.ToBookDto().GetNewBookMails(), CommonKeywords.ExchangeNames.BookExchange, CommonKeywords.QueueNames.NewBookNotifier);
 
             return TypedResults.Created($"/books/{book.Id}", book.ToBookDto());
         });
